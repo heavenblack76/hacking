@@ -65,7 +65,6 @@ Tu IP privada es: 192.168.0.82
 
 
 
-
 En mi caso yo opero con una ZSH, por tanto mi archivo de configuración corresponde al ‘~/.**zshrc**‘. Recuerda que en caso de usar una BASH tu archivo de configuración debería estar situado en ‘**~/.bashrc**‘
 
 Por aquí te dejo algunos enlaces de interés por si quieres entender un poco mejor para qué sirven estos archivos:
