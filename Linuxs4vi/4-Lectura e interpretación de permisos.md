@@ -25,3 +25,13 @@ Para cambiear un grupo:
 Pero si queremos cambiarle algunos detalles por ejempli:
 
 `#chmod u-w,g+xr,o-x,o+r file`
+
+------------------------------------------------------------------------------------------------------------------
+
+### OCTAL 
+
+| r   |  w  | x   |
+| --- | :-: | --- |
+| 4   |  2  | 1   |
+
+
