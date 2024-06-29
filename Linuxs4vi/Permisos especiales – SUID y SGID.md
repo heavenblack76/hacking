@@ -121,19 +121,3 @@ en la bque nos indica que es que estamos dentro del grupo de root
 ```
 chmod g+s /usr/bin/python3.9
 ```
-
-
-se puede ejecutar el comando whoami > file
-
-### ¿De qué formas podría conseguir que el archivo ‘file’ tuviera los permisos finalmente representados
-
-741 
-	3chmod u+w,o-rw,o+x
-
-se puede borrar el archivo que contiene solo permiso de escritura
-
-el permiso resultante es 546
-
-### Atendiendo a los permisos representados y siendo el usuario Juan, ¿podré borrar el archivo?
-si
-
