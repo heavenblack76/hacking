@@ -36,3 +36,11 @@ pacman -S package-name
 Donde "package-name" es el nombre del paquete que quieres instalar. De esta manera, podrás convertir tu instalación de Arch Linux
 en un laboratorio de pruebas de penetración, con acceso a miles de herramientas de seguridad proporcionadas por el proyecto 
 BlackArch. 
+
+################################################################################################################3
+
+
+# Set error messages to display in red
+export PROMPT_COMMAND='if [ $? -ne 0 ]; then echo -ne "\033[1;31m"; fi'
+export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[1;31m\]$? \[\033[00m\]\$ '
+#################################################################################################################3
