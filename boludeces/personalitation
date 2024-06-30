@@ -2,3 +2,37 @@ https://sw.kovidgoyal.net/kitty/binary/#uninstalling
 
 https://medium.com/@neviogomez91/arch-linux-customization-a-beginners-guide-fd12d417f00c
 
+#############################################################################################################
+install blackarch on arch
+
+Para instalar los repositorios de BlackArch en Arch Linux, sigue estos pasos:
+
+    Descarga el script strap.sh de BlackArch:
+
+curl -O https://blackarch.org/strap.sh
+
+    Otorga permisos de ejecución al script:
+
+chmod +x strap.sh
+
+    Ejecuta el script para instalar los repositorios de BlackArch:
+
+./strap.sh
+
+Este script se encargará de agregar los repositorios de BlackArch a tu sistema Arch Linux. Una vez instalados los repositorios,
+puedes listar las diferentes categorías de herramientas de seguridad disponibles en BlackArch con el siguiente comando:
+
+pacman -Sg | grep blackarch
+
+Para instalar paquetes de una categoría específica, usa:
+
+pacman -S blackarch-category
+
+Reemplaza "blackarch-category" por la categoría que desees, como "blackarch-wireless" o "blackarch-exploitation". 
+También puedes instalar paquetes individuales con:
+
+pacman -S package-name
+
+Donde "package-name" es el nombre del paquete que quieres instalar. De esta manera, podrás convertir tu instalación de Arch Linux
+en un laboratorio de pruebas de penetración, con acceso a miles de herramientas de seguridad proporcionadas por el proyecto 
+BlackArch. 
