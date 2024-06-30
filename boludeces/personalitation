@@ -1,6 +1,13 @@
 https://sw.kovidgoyal.net/kitty/binary/#uninstalling
 
 https://medium.com/@neviogomez91/arch-linux-customization-a-beginners-guide-fd12d417f00c
+sudo pacman -S gnome
+
+install kitty
+
+#servicios
+yay -Sy awesome-git picom-git alacritty rofi todo-bin acpi acpid \ wireless_tools jq inotify-tools polkit-gnome
+xdotool xclip main \ brightnessctl alsa-utils alsa-tools lm_sensors \ mpd mpc mpdris2 ncmpcpp playerctl --needed
 
 #############################################################################################################
 install blackarch on arch
