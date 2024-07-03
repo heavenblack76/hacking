@@ -983,3 +983,476 @@ kSkvUpMQ7lBYyCM4GBPvCvT1BfWRy0Dx
 
 [Las credenciales para el siguiente nivel se pueden recuperar presentando la contraseña del nivel actual a un puerto en localhost en el rango de 31000 a 32000. Primero averiguar cuál de estos puertos tiene un servidor escuchando. Entonces averíde cuál de esos habla SSL y cuál no. Sólo hay 1 servidor que dará las siguientes credenciales, los otros simplemente le enviarán de vuelta lo que le envíes. ]
 
+#### nvim portscanner.sh
+
+```
+ echo '' > /dev/tcp/127.0.0.1/22                                                                                    
+zsh: no such file or directory: /dev/tcp/127.0.0.1/22
+
+bash
+
+'' > /dev/tcp/127.0.0.1/
+```
+
+[[kill %%  para ver si hay tareas en segundo plano]]
+
+#### Ahora quedaria algo masomos asi 
+
+```
+(echo '' > /dev/tcp/127.0.0.1/22) 2>/dev/null && echo "[+] El puerto esta abierto" || echo "[+] El puerto esta cerrado"
+```
+
+#### script
+
+```
+#!/bin/bash
+#
+function crtl_c(){
+	echo -e "\n\n[!] Saliendo ...\n"
+	exit 1
+#
+}
+#
+## crtl+c
+trap crtl_c INT	
+
+for port in $(seq 1 655535); do
+	(echo '' > /dev/tcp/127.0.0.1/$port) 2>/dev/null && echo "[+] $port -OPEN" &
+done; wait
+```
+
+#### lineas; se torna mas rapido porque espera 1 segundo
+
+```
+timeout 1 bash -c "ping -c 1 192.168.0.1" && echo "[+] El host esta activo" || echo "[+] El host esta muerto"
+```
+
+#### si se lo metemos al script
+
+```
+#!/bin/bash
+#
+function crtl_c(){
+	echo -e "\n\n[!] Saliendo ...\n"
+# ahora no vemos el cursor
+tput cnorm;	exit 1
+}
+#ocultando el cursor
+tput civis
+## crtl+c
+trap crtl_c INT	
+
+for port in $(seq 1 254); do
+	timeout 1 bash -c "ping -c 1 192.168.0.1" && echo "[+] El host esta activo" || echo "[+] El host esta muerto"
+done 
+# recuperando el cursor
+tput cnorm
+```
+
+[de esta forma me da una secuencia anlizando 1 host nada mas]
+
+#### Ahora si lo muestra de forma secuencial 
+
+```
+#!/bin/bash
+#
+function crtl_c(){
+	echo -e "\n\n[!] Saliendo ...\n"
+	exit 1
+#
+}
+#
+## crtl+c
+trap crtl_c INT	
+
+for i in $(seq 1 254); do
+	timeout 1 bash -c "ping -c 1 192.168.0.$i 2>/dev/null" && echo "[+] El host esta activo" || echo "[+] El host esta muerto"
+done 
+```
+
+#### s4vitar lo hizo mas eficaz 
+
+```
+#!/bin/bash
+#
+function crtl_c(){
+	echo -e "\n\n[!] Saliendo ...\n"
+	exit 1
+#
+}
+#
+## crtl+c
+trap crtl_c INT	
+
+for i in $(seq 1 254); do
+	timeout 1 bash -c "ping -c 1 192.168.0.$i 2>/dev/null" && echo "[+] 192.168.0.$i -ACTIVE"
+done
+
+
+PING 192.168.0.1 (192.168.0.1) 56(84) bytes of data.
+64 bytes from 192.168.0.1: icmp_seq=1 ttl=64 time=7.23 ms
+
+--- 192.168.0.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 7.234/7.234/7.234/0.000 ms
+[+] 192.168.0.1 -ACTIVE
+PING 192.168.0.2 (192.168.0.2) 56(84) bytes of data.
+PING 192.168.0.3 (192.168.0.3) 56(84) bytes of data.
+
+```
+
+#### le voy agregar un || para los que estan cerrados
+
+
+```
+#!/bin/bash
+
+function crtl_c(){
+	echo -e "\n\n[!] Saliendo ...\n"
+	exit 1
+}
+## crtl+c
+trap crtl_c INT	
+
+for i in $(seq 1 254); do
+	timeout 1 bash -c "ping -c 1 192.168.0.$i 2>/dev/null" && echo "[+] 192.168.0.$i -ACTIVE" || echo "[+] 192.168.0.$i -CLOSE"
+done
+
+
+PING 192.168.0.1 (192.168.0.1) 56(84) bytes of data.
+64 bytes from 192.168.0.1: icmp_seq=1 ttl=64 time=3.80 ms
+
+--- 192.168.0.1 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 3.795/3.795/3.795/0.000 ms
+[+] 192.168.0.1 -ACTIVE
+PING 192.168.0.2 (192.168.0.2) 56(84) bytes of data.
+[+] 192.168.0.2 -CLOSE
+PING 192.168.0.3 (192.168.0.3) 56(84) bytes of data.
+[+] 192.168.0.3 -CLOSE
+
+
+[!] Saliendo ...
+
+```
+
+[Efectivamente quedo ma mejor]
+
+#### aca se muestran solo los que estan activos; tirando de lineas
+
+```
+#!/bin/bash
+
+function crtl_c(){
+	echo -e "\n\n[!] Saliendo ...\n"
+	exit 1
+}
+## crtl+c
+trap crtl_c INT	
+
+for i in $(seq 1 254); do
+	timeout 1 bash -c "ping -c 1 192.168.0.$i 2>/dev/null" && echo "[+] 192.168.0.$i -ACTIVE" &
+done; wait
+
+
+```
+
+#mktemp 
+#### nos metemos en /tmp y creamos un directorio temporal de trabajo con mktemp -d
+
+```
+cd /tmp
+mktemp -d
+y nos devuelve un directorio en el cual nos tenemos que meter
+cd ajsdnsakdn
+touch portscan.sh
+chmod +x portscan.sh
+nano portscan.sh
+```
+
+```
+#!/bin/bash
+
+function (){
+	echo "\n\n[+] Saliendo .... \n"
+	exit 1
+}
+#crtl_c 
+trap crtl_c INT
+
+for port in $(seq 31000 32000); do
+	(echo '' > /dev/tcp/127.0.0.1$port 2>/dev/null) && echo "[+] $port -OPEN"
+done
+```
+
+#### tuve que tirar de nmap porque el script me trae problemas
+
+```
+$ nmap -T5 -n -p 31000-32000 127.0.0.1
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-07-03 17:37 UTC
+Nmap scan report for 127.0.0.1
+Host is up (0.00016s latency).
+Not shown: 996 closed tcp ports (conn-refused)
+PORT      STATE SERVICE
+31046/tcp open  unknown
+31518/tcp open  unknown
+31691/tcp open  unknown
+31790/tcp open  unknown
+31960/tcp open  unknown
+
+```
+
+
+#netcat
+#### ahora que detecta los puertos que estan abiertos intentamos conectarnos con netcat
+
+```
+ncat --ssl 127.0.0.1 31790
+
+le pasamos el pass
+
+kSkvUpMQ7lBYyCM4GBPvCvT1BfWRy0Dx
+
+si engancha el output es una privatekey
+
+-----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEAvmOkuifmMg6HL2YPIOjon6iWfbp7c3jx34YkYWqUH57SUdyJ
+imZzeyGC0gtZPGujUSxiJSWI/oTqexh+cAMTSMlOJf7+BrJObArnxd9Y7YT2bRPQ
+Ja6Lzb558YW3FZl87ORiO+rW4LCDCNd2lUvLE/GL2GWyuKN0K5iCd5TbtJzEkQTu
+DSt2mcNn4rhAL+JFr56o4T6z8WWAW18BR6yGrMq7Q/kALHYW3OekePQAzL0VUYbW
+JGTi65CxbCnzc/w4+mqQyvmzpWtMAzJTzAzQxNbkR2MBGySxDLrjg0LWN6sK7wNX
+x0YVztz/zbIkPjfkU1jHS+9EbVNj+D1XFOJuaQIDAQABAoIBABagpxpM1aoLWfvD
+KHcj10nqcoBc4oE11aFYQwik7xfW+24pRNuDE6SFthOar69jp5RlLwD1NhPx3iBl
+J9nOM8OJ0VToum43UOS8YxF8WwhXriYGnc1sskbwpXOUDc9uX4+UESzH22P29ovd
+d8WErY0gPxun8pbJLmxkAtWNhpMvfe0050vk9TL5wqbu9AlbssgTcCXkMQnPw9nC
+YNN6DDP2lbcBrvgT9YCNL6C+ZKufD52yOQ9qOkwFTEQpjtF4uNtJom+asvlpmS8A
+vLY9r60wYSvmZhNqBUrj7lyCtXMIu1kkd4w7F77k+DjHoAXyxcUp1DGL51sOmama
++TOWWgECgYEA8JtPxP0GRJ+IQkX262jM3dEIkza8ky5moIwUqYdsx0NxHgRRhORT
+8c8hAuRBb2G82so8vUHk/fur85OEfc9TncnCY2crpoqsghifKLxrLgtT+qDpfZnx
+SatLdt8GfQ85yA7hnWWJ2MxF3NaeSDm75Lsm+tBbAiyc9P2jGRNtMSkCgYEAypHd
+HCctNi/FwjulhttFx/rHYKhLidZDFYeiE/v45bN4yFm8x7R/b0iE7KaszX+Exdvt
+SghaTdcG0Knyw1bpJVyusavPzpaJMjdJ6tcFhVAbAjm7enCIvGCSx+X3l5SiWg0A
+R57hJglezIiVjv3aGwHwvlZvtszK6zV6oXFAu0ECgYAbjo46T4hyP5tJi93V5HDi
+Ttiek7xRVxUl+iU7rWkGAXFpMLFteQEsRr7PJ/lemmEY5eTDAFMLy9FL2m9oQWCg
+R8VdwSk8r9FGLS+9aKcV5PI/WEKlwgXinB3OhYimtiG2Cg5JCqIZFHxD6MjEGOiu
+L8ktHMPvodBwNsSBULpG0QKBgBAplTfC1HOnWiMGOU3KPwYWt0O6CdTkmJOmL8Ni
+blh9elyZ9FsGxsgtRBXRsqXuz7wtsQAgLHxbdLq/ZJQ7YfzOKU4ZxEnabvXnvWkU
+YOdjHdSOoKvDQNWu6ucyLRAWFuISeXw9a/9p7ftpxm0TSgyvmfLF2MIAEwyzRqaM
+77pBAoGAMmjmIJdjp+Ez8duyn3ieo36yrttF5NSsJLAbxFpdlc1gvtGCWW+9Cq0b
+dxviW8+TFVEBl1O4f7HVm6EpTscdDxU+bCXWkfjuRb7Dy9GOtt9JPsX8MBTakzh3
+vBgsyi/sN3RqRBcGU40fOoZyfAMT8s1m/uYv52O6IgeuZ/ujbjY=
+-----END RSA PRIVATE KEY-----
+
+
+
+```
+
+#id_rsa
+#### una vez obtenida lo guardamos en un fichero id_rsa 
+
+[las claves privadas tienen como privilegios (600)]
+
+`chmod 600 id_rsa`
+
+#### lo utilizamos como archivo de identidad para conectarnos como bandit17
+
+`ssh -i id_rsa bandit17@localhost`
+
+#### entramos, y si listamos el path de los pass las vemos a todas
+
+`cat /etc/bandit_pass/bandit17`
+
+#### nos devuelve el output
+
+``EReVavePLFHtFlFsjn3hyzMlvSuSAcRD``
+
+--------------------------------
+
+# Detección de diferencias entre archivos
+
+## bandit17 ->18
+
+[There are 2 files in the homedirectory: **passwords.old and passwords.new**. The password for the next level is in **passwords.new** and is the only line that has been changed between **passwords.old and passwords.new**
+
+**NOTE: if you have solved this level and see ‘Byebye!’ when trying to log into bandit18, this is related to the next level, bandit19**]
+
+[Hay 2 archivos en el directorio de inicio: contraseñas.old y contraseñas.news. La contraseña para el siguiente nivel está en contraseñas.new y es la única línea que ha sido cambiada entre contraseñas.old y contraseñas.new NOTA: si has resuelto este nivel y verás "Byebye" cuando intentas iniciar sesión en bandido18, esto está relacionado con el siguiente nivel, bandit19  ]
+
+#### verificamos si los 2 archivos tienen la misma cantidad de lineas
+
+```
+wc -l *
+
+ 100 passwords.new
+ 100 passwords.old
+ 200 total
+
+```
+
+#### efectivamente
+
+#### listamos las 5 primeras lineas del primer archivo
+
+```
+cat passwords.news | head -n 5
+
+GBSpdAt8lIKFlWIDrmxLHVygNMn4IAZ5
+h0aoGAzIcWZmf768LOdOiGAaJs7sVlCK
+pArborKSqov71YY0FMTXoc5FbABEY5tK
+PuJhQuNoEXQ66BrN2uqbEaEIPCIO3zBF
+VH3q1dN6f8XMyvnanQuzWNZIp2pXOTg9
+
+bandit17@bandit:~$ cat passwords.old | head -n 5
+
+GBSpdAt8lIKFlWIDrmxLHVygNMn4IAZ5
+h0aoGAzIcWZmf768LOdOiGAaJs7sVlCK
+pArborKSqov71YY0FMTXoc5FbABEY5tK
+PuJhQuNoEXQ66BrN2uqbEaEIPCIO3zBF
+VH3q1dN6f8XMyvnanQuzWNZIp2pXOTg9
+
+```
+
+#### se supone que son iguales
+
+#diff
+
+https://eltallerdelbit.com/comando-diff-ejemplos/
+#### vemos las diferencias que hay 
+
+```
+diff passwords.news passwords.old 
+
+42c42
+< FtePUTiLiwPzjIFw2T7o57oBS4zUvPpg     /se saco
+---
+> x2gLTTjFwMOhQ8oWNbMN362QKxfRqGlO     /se puso
+
+```
+
+#### esta seria el pass x2gLTTjFwMOhQ8oWNbMN362QKxfRqGlO pero te expulsa 
+
+-------
+
+# Ejecución de comandos por SSH
+
+## bandit18 ->19
+
+[The password for the next level is stored in a file **readme** in the homedirectory. Unfortunately, someone has modified **.bashrc** to log you out when you log in with SSH.]
+
+[La contraseña para el siguiente nivel se almacena en un rema de archivo en el directorio de inicios. Desafortunadamente, alguien ha modificado .bashrc para cerrar sesión cuando inicias sesión con SSH. ]
+
+#### como el muy hijo de puta nos expulsa, podemos inyectar un comando 
+
+```
+ssh bandit18@bandit.labs.overthewire.org -p 2220 *whoami*
+                         _                     _ _ _   
+                        | |__   __ _ _ __   __| (_) |_ 
+                        | '_ \ / _` | '_ \ / _` | | __|
+                        | |_) | (_| | | | | (_| | | |_ 
+                        |_.__/ \__,_|_| |_|\__,_|_|\__|
+                                                       
+
+                      This is an OverTheWire game server. 
+            More information on http://www.overthewire.org/wargames
+
+bandit18@bandit.labs.overthewire.org's password: 
+*bandit18*
+
+```
+
+#### deja que me conecte y pude inyectar el comando
+
+#### ahora puedo forzar a que me de una bash antes que me eche
+
+```
+ssh bandit18@bandit.labs.overthewire.org -p 2220 bash
+                 _                     _ _ _   
+                        | |__   __ _ _ __   __| (_) |_ 
+                        | '_ \ / _` | '_ \ / _` | | __|
+                        | |_) | (_| | | | | (_| | | |_ 
+                        |_.__/ \__,_|_| |_|\__,_|_|\__|
+                                                       
+
+                      This is an OverTheWire game server. 
+            More information on http://www.overthewire.org/wargames
+
+bandit18@bandit.labs.overthewire.org's password: 
+whoami
+bandit18
+
+```
+
+#### listo, entre, ahora me dice que el pass esta alojado en README
+
+```
+ ls
+readme
+cat readme
+cGWpMaKXVwDUNgPAVJbWYuGHVn9zl3j8
+
+```
+
+#### efectivamente es el pass
+
+------
+# Abusando de privilegio SUID para migrar de usuario
+## bandit19 ->20
+
+
+[To gain access to the next level, you should use the setuid binary in the homedirectory. Execute it without arguments to find out how to use it. The password for this level can be found in the usual place (/etc/bandit_pass), after you have used the setuid binary.]
+
+[Para tener acceso al siguiente nivel, debe utilizar el binario setuid en el homedirectory. Ejecutarlo sin argumentos para averiguar cómo usarlo. La contraseña para este nivel se puede encontrar en el lugar habitual (/etc/bandit-pass), después de haber utilizado el binario setuid. ]
+
+#### aparece un binario suid compilado de 32bits
+
+```
+file bandit20-do 
+bandit20-do: setuid ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, BuildID[sha1]=368cd8ac4633fabdf3f4fb1c47a250634d6a8347, for GNU/Linux 3.2.0, not stripped
+```
+
+#### se puede correr el binario 
+
+```
+./bandit20-do whoami
+bandit20
+
+```
+
+#### si leo dentro de la ruta 
+
+```
+./bandit20-do cat /etc/bandit_pass/bandit20
+0qXahG8ZjOVMN9Ghs7iOWsCfZyXOUbYO
+```
+
+#### era bastante intuitivo i have the pass 
+
+```
+0qXahG8ZjOVMN9Ghs7iOWsCfZyXOUbYO
+```
+
+#### bueno s4vi lo hizo de otra manera
+
+```
+./bandit20-do sh
+whoami
+bandit20
+cat /etc/bandit_pass/bandit20
+0qXahG8ZjOVMN9Ghs7iOWsCfZyXOUbYO
+```
+
+-----
+
+# Jugando con conexiones
+
+## bandit 20 ->21
+
+[There is a setuid binary in the homedirectory that does the following: it makes a connection to localhost on the port you specify as a commandline argument. It then reads a line of text from the connection and compares it to the password in the previous level (bandit20). If the password is correct, it will transmit the password for the next level (bandit21).
+
+**NOTE:** Try connecting to your own network daemon to see if it works as you think]
+
+[Hay un binario setuid en el homedirectory que hace lo siguiente: hace una conexión con el localhost en el puerto que especifica como argumento de la línea de comando. Luego lee una línea de texto de la conexión y la compara con la contraseña en el nivel anterior (bandata20). Si la contraseña es correcta, transmitirá la contraseña para el siguiente nivel (bandata21). 
+NOTA: Trate de conectarte a tu propio demonio de red para ver si funciona como crees ]
+
+https://blog.desdelinux.net/usando-netcat-algunos-comandos-practicos/
+
