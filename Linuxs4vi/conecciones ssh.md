@@ -1456,3 +1456,267 @@ NOTA: Trate de conectarte a tu propio demonio de red para ver si funciona como c
 
 https://blog.desdelinux.net/usando-netcat-algunos-comandos-practicos/
 
+-------------------------------------------------------------------------------------------------------------------
+
+# Jugando con conexiones
+
+## bandit 20 ->21
+
+[There is a setuid binary in the homedirectory that does the following: it makes a connection to localhost on the port you specify as a commandline argument. It then reads a line of text from the connection and compares it to the password in the previous level (bandit20). If the password is correct, it will transmit the password for the next level (bandit21).
+
+**NOTE:** Try connecting to your own network daemon to see if it works as you think]
+
+[Hay un binario setuid en el homedirectory que hace lo siguiente: hace una conexión con el localhost en el puerto que especifica como argumento de la línea de comando. Luego lee una línea de texto de la conexión y la compara con la contraseña en el nivel anterior (bandata20). Si la contraseña es correcta, transmitirá la contraseña para el siguiente nivel (bandata21). 
+NOTA: Trate de conectarte a tu propio demonio de red para ver si funciona como crees ]
+
+https://blog.desdelinux.net/usando-netcat-algunos-comandos-practicos/
+
+#### Nos encontramos con un binario el cual tiene permisos setuid pero requiere de una conexion a algun puerto
+
+```
+ls
+suconnect
+
+bandit20@bandit:~$ ls -l
+total 16
+-rwsr-x--- 1 bandit21 bandit20 15604 Jun 20 04:07 suconnect
+
+bandit20@bandit:~$ ./suconnect 
+Usage: ./suconnect <portnumber>
+This program will connect to the given port on localhost using TCP. If it receives the correct password from the other side, the next password is transmitted back.
+
+bandit20@bandit:~$ ./suconnect 22
+Read: SSH-2.0-OpenSSH_9.6p1
+ERROR: This doesn't match the current password!
+bandit20@bandit:~$ 
+```
+
+#### si le paso el password de bandit 20 corriendo por el puerto 22 quizas enganche
+
+```
+./suconnect ssh -i '0qXahG8ZjOVMN9Ghs7iOWsCfZyXOUbYO' bandit21@localhost -p 22
+Read: SSH-2.0-OpenSSH_9.6p1
+ERROR: This doesn't match the current password!
+bandit20@bandit:~$ 
+```
+
+#### fallo, pero s4vi hace otra cosa
+
+#### abre otra terminal y se conecta a bandit20
+
+```
+ssh bandit20@bandit.labs.overthewire.org -p 2220
+0qXahG8ZjOVMN9Ghs7iOWsCfZyXOUbYO
+```
+
+#### En la misma se pone en escucha con netcat por un puerto random
+
+```
+nc -lnvp 2020
+```
+
+#### desde la otra terminal logeado con bandit20 ejecuto el binario pasandole el puerto 2020
+
+```
+./suconnect 2020
+```
+
+#### me recibe la coneccion pero si coloco otra cosa que no sea el pass me echa, asiq pongo el pass
+
+```
+0qXahG8ZjOVMN9Ghs7iOWsCfZyXOUbYO
+```
+
+#### me devuelve el pass de bandit 21
+
+```
+bandit20@bandit:~$ ls
+
+suconnect
+
+bandit20@bandit:~$ nc -lnvp 2020
+Listening on 0.0.0.0 2020
+Connection received on 127.0.0.1 46958
+0qXahG8ZjOVMN9Ghs7iOWsCfZyXOUbYO
+EeoULMCra2q0dSkYj561DX7s1CpBuOBt
+```
+
+#### password
+
+```
+EeoULMCra2q0dSkYj561DX7s1CpBuOBt
+```
+
+----------
+#cron
+# Abusando de tareas Cron [1-3]
+## bandit21 ->22
+
+[A program is running automatically at regular intervals from **cron**, the time-based job scheduler. Look in **/etc/cron.d/** for the configuration and see what command is being executed.]
+
+	[Un programa se está ejecutando automáticamente a intervalos regulares de cron, el programador de trabajo basado en el tiempo. Mire en /etc/cron.d/ para la configuración y vea qué comando está siendo ejecutado. ]
+
+*Cron es un administrador de tareas de Linux que permite ejecutar comandos en un momento determinado, por ejemplo, cada minuto, día, semana o mes. Si queremos trabajar con cron, podemos hacerlo a través del comando **crontab**.*
+
+#### nos dice que miremos en  /etc/cron.d 
+
+```
+bandit21@bandit:~$ cd /etc/cron.d
+```
+
+#### encontre varios archivos que me dejan verlos
+
+```
+bandit21@bandit:/etc/cron.d$ ls
+cronjob_bandit22  cronjob_bandit24  otw-tmp-dir
+cronjob_bandit23  e2scrub_all       sysstat
+```
+
+#### supongo que sera el cronjob_bandit22
+
+```
+bandit21@bandit:/etc/cron.d$ ls -l cronjob_bandit22
+-rw-r--r-- 1 root root 120 Jun 20 04:07 cronjob_bandit22
+
+```
+
+#### vemos que permisos tiene
+
+```
+bandit21@bandit:/etc/cron.d$ ls -l cronjob_bandit22
+-rw-r--r-- 1 root root 120 Jun 20 04:07 cronjob_bandit22
+```
+
+#### le hacemos un cat
+
+```
+bandit21@bandit:/etc/cron.d$ cat cronjob_bandit22
+@reboot bandit22 /usr/bin/cronjob_bandit22.sh &> /dev/null
+* * * * * bandit22 /usr/bin/cronjob_bandit22.sh &> /dev/null
+```
+
+#### apunta a un archivo el cual es una tarea crontab asi que si lo cateamos
+
+```
+bandit21@bandit:/etc/cron.d$ cat /usr/bin/cronjob_bandit22.sh 
+#!/bin/bash
+chmod 644 /tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv
+cat /etc/bandit_pass/bandit22 > /tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv
+```
+
+#### apunta a un fichero el cual se ejecuta constantemente con permisos 644 (podemos leerlo)
+
+```
+bandit21@bandit:/etc/cron.d$ ls -l /tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv
+-rw-r--r-- 1 bandit22 bandit22 33 Jul  4 19:40 /tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv
+```
+
+#### sin mas lo cateamos y pim pam pum password
+
+```
+bandit21@bandit:/etc/cron.d$ cat /tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv
+
+tRae0UfB9v0UzbCdn9cY0gQnds9GF58Q
+```
+
+---------------------
+
+# Abusando de tareas Cron [2-3]
+## bandit22 ->23
+
+[A program is running automatically at regular intervals from **cron**, the time-based job scheduler. Look in **/etc/cron.d/** for the configuration and see what command is being executed.
+
+**NOTE:** Looking at shell scripts written by other people is a very useful skill. The script for this level is intentionally made easy to read. If you are having problems understanding what it does, try executing it to see the debug information it prints.]
+
+[Un programa se está ejecutando automáticamente a intervalos regulares de cron, el programador de trabajo basado en el tiempo. Mire en /etc/cron.d/ para la configuración y vea qué comando está siendo ejecutado. 
+NOTA: Mirar los guiones de concha escritos escritos por otras personas es una habilidad muy útil. El guión de este nivel se hace intencionalmente fácil de leer. Si usted está teniendo problemas para entender lo que hace, trate de ejecutarlo para ver la información de depuración que imprime. ]
+
+https://blog.desdelinux.net/cron-crontab-explicados/
+#### Bueno siguiendo los pasos anteriores llegue hasta aca
+
+```
+bandit22@bandit:~$ cd /etc/cron.d
+
+bandit22@bandit:/etc/cron.d$ ls
+
+cronjob_bandit22  cronjob_bandit24  otw-tmp-dir
+cronjob_bandit23  e2scrub_all       sysstat
+
+bandit22@bandit:/etc/cron.d$ ls cronjob_bandit23 
+
+cronjob_bandit23
+
+bandit22@bandit:/etc/cron.d$ ls -l cronjob_bandit23
+
+-rw-r--r-- 1 root root 122 Jun 20 04:07 cronjob_bandit23
+
+bandit22@bandit:/etc/cron.d$ cat cronjob_bandit23
+
+@reboot bandit23 /usr/bin/cronjob_bandit23.sh  &> /dev/null       
+* * * * * bandit23 /usr/bin/cronjob_bandit23.sh  &> /dev/null
+
+bandit22@bandit:/etc/cron.d$ cat /usr/bin/cronjob_bandit23.sh 
+
+#!/bin/bash
+
+myname=$(whoami)
+mytarget=$(echo I am user $myname | md5sum | cut -d ' ' -f 1)
+
+echo "Copying passwordfile /etc/bandit_pass/$myname to /tmp/$mytarget"
+
+cat /etc/bandit_pass/$myname > /tmp/$mytarget
+
+```
+
+{@reboot quiere decir que cuando se reinicie el equipo va ejecutar esta tarea @reboot bandit23 /usr/bin/cronjob_bandit23.sh  &> /dev/null }
+
+#### explicacion del script
+
+
+#### myname es el output del whoami/ y es bandit23
+
+```
+myname=$(whoami)
+```
+
+#### mytarget es el hash del nombre bandit en md5sum y el cut es para quedarse con solo el hash del output
+
+```
+mytarget=$(echo I am user $myname | md5sum | cut -d ' ' -f 1)
+```
+
+#### osea = 
+
+```
+ echo I am user bandit23 | md5sum | cut -d ' ' -f 1
+8ca319486bfbbc3663ea0fbe81326349
+```
+
+#### hace una copia del hash y lo envia  por las siguientes rutas
+
+```
+echo "Copying passwordfile /etc/bandit_pass/$myname to /tmp/$mytarget"
+```
+
+#### Entonces si cateo ambas rutas?
+
+```
+bandit22@bandit:/etc/cron.d$ cd /etc/bandit_pass/
+bandit22@bandit:/etc/bandit_pass$ ls
+bandit0   bandit13  bandit18  bandit22  bandit27  bandit31  bandit6
+bandit1   bandit14  bandit19  bandit23  bandit28  bandit32  bandit7
+bandit10  bandit15  bandit2   bandit24  bandit29  bandit33  bandit8
+bandit11  bandit16  bandit20  bandit25  bandit3   bandit4   bandit9
+bandit12  bandit17  bandit21  bandit26  bandit30  bandit5
+bandit22@bandit:/etc/bandit_pass$ cat bandit23
+cat: bandit23: Permission denied
+bandit22@bandit:/etc/bandit_pass$ cat /tmp/8ca319486bfbbc3663ea0fbe81326349
+
+```
+
+#### obtenemos el password
+
+```
+0Zf11ioIjMVN551jX3CmStKLYqjk54Ga
+```
+--------------------------------------------------------------------------------------------------------------------------------------------
