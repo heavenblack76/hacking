@@ -1,0 +1,60 @@
+
+sudo su
+
+apt install unzip && apt install wget
+
+sudo apt update -y && sudo apt upgrade -y && sudo apt-get install build-essential -y
+
+nano .env 
+
+BACKEND_INTERFACE=0.0.0.0
+BACKEND_PORT=8089
+BACKEND_URL=http:
+BACKEND_DEBUG=true
+SOCKET_IO_URL=http:
+FRONTEND_URL=http:
+
+FRONTEND_INTERFACE=0.0.0.0
+FRONTEND_PORT=80
+
+MYSQL_PORT=3306
+MYSQL_DATABASE=hook
+MYSQL_USER=no-root
+MYSQL_ROOT_PASSWORD=ZDVdkJdkkskdkskS
+MYSQL_PASSWORD=N7OkdksWKskkdD
+MYSQL_HOST="sunucu ip"
+
+PHP_SOCKETS_PORT=8000
+PHP_TCP_PORT=12342
+
+GOLANG_PORT=3434
+GOLANG_KEY=1A1zP1eP5QGefi2DMPTfTL5SLmv7Divf
+GOLANG_INITIAL_VECTOR=0123456789abcdef
+
+TIMEZONE=Europe/Moscow
+
+TELEGRAM_TOKEN="telegram bot tokeninizi yazın"
+
+rm -rv golang/.env && rm -rv frontend/.env && rm -rv frontend/.env.production
+
+make ports && chmod 777 *
+
+make install && make env
+
+make build
+
+reboot
+
+sudo su
+
+
+make build
+
+make build
+
+reboot
+
+http://"ip"
+
+token: root
+password: changemeplease
