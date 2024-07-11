@@ -1864,3 +1864,217 @@ watch -n 1 ls -l
 
 ```
 --------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+# Fuerza bruta aplicada a conexiones
+
+
+https://www.site24x7.com/es/tools/crontab/cron-generator.html
+## bandit24 -> 25
+
+[A daemon is listening on port 30002 and will give you the password for bandit25 if given the password for bandit24 and a secret numeric 4-digit pincode. There is no way to retrieve the pincode except by going through all of the 10000 combinations, called brute-forcing.  
+You do not need to create new connections each time]
+
+[Un demonio está escuchando en el puerto 30002 y le dará la contraseña para bandit25 si se le da la contraseña para bandit24 y un pincode numeric numeric de 4 dígitos secretos. No hay manera de recuperar el copdo excepto pasando por todas las combinaciones de 10000, llamadas brute-forz. No es necesario crear nuevas conexiones cada vez ]
+
+Otra forma válida de poder haber resuelto este ejercicio habría sido crear un script que por cada iteración que se efectúe en el secuenciador, se pruebe una conexión enviando los datos que le pasamos nuestro lado, correspondiente a la cadena y al PIN.
+
+Lo único a tener en cuenta es que en caso de no usar hilos, es posible que se experimente cierta lentitud a la hora de correr el script siguiendo este principio.
+
+#### si nos conectamos con netcat al localhost por el puerto 30002 y le pasamos el pass no salta un error
+
+
+#### hay que generar combinaciones del 0000 al 9999 
+
+```
+for i in {00..09}; do echo $i; done
+00
+01
+02
+03
+04
+05
+06
+07
+08
+09
+  
+```
+
+#### si le pasamos el pass junto con las posibles combinaciones quedaria asi:
+
+```
+for pin in {0000..9999}; do echo "password $pin"; done
+```
+
+#### se generan todas las combinaciones y hay que meterlo en un fichero
+
+```
+└─$ for pin in {0000..9999}; do echo "password $pin"; done > combination.txt
+```
+
+#### si esto lo pipeamos con netcat nos va a salir muchas lineas de error
+
+```
+cat combination.txt | nc localhost 30002
+wrong! password dont is correct
+etc
+```
+
+#### le sacamos las lineas de wrong con grep -v
+
+```
+cat combination.txt | nc localhost 30002 | grep -v "Wrong"
+```
+
+#### sale una nueva linea, asi que tambien la sacamos con -vE 
+
+```
+cat combination.txt | nc localhost 30002 | grep -vE "Wrong|Please enter"
+```
+
+#### ahora va ir probando todas las posibles pass y cuando acierte lo imprimira
+
+pim pam pum
+
+-------------------------------------------------------------
+
+
+
+# Escapando del contexto de un comando
+
+## bandit 25 ->26
+
+¡A veces el tamaño sí que importa!, aislado a esto que hemos visto, el comando ‘**more**‘ lo que te permite es mostrar el resultado de la ejecución de un comando en la terminal de a una página a la vez. Esto es especialmente útil para casos en los que se ejecutan comandos que puedan llegar a causar un gran desplazamiento.
+
+Para pasar a la página siguiente, tienes que presionar la **barra espaciadora** en el teclado.
+
+Puedes continuar presionando espacio hasta llegar al final del resultado o puedes presionar la tecla “**q**” directamente para salir.
+
+
+[Logging in to bandit26 from bandit25 should be fairly easy… The shell for user bandit26 is not **/bin/bash**, but something else. Find out what it is, how it works and how to break out of it.]
+
+[Introentrar en bandido26 desde bandit25 debería ser bastante fácil... La shell para bandit26 de usuario no es /bin/bash, sino otra cosa. Descubre qué es, cómo funciona y cómo salir de ella. ]
+
+#more
+
+cuando se quiere conectar usando la keypass_pub devuelve un banner con #more por lo tanto reduce la terminal para pasarle una script y que ejecute una bash
+
+```
+:set shell=/bin/bash
+:shell
+se ejecuta la shel dando una bash
+```
+
+# bandit 26->27 es un setsuid
+------------------------
+# Operando con proyectos de Github [1-5]
+
+## bandit 27 -> 28
+
+**Github** es un portal creado para alojar el código de las aplicaciones de cualquier desarrollador, y que fue comprada por Microsoft en junio del 2018. La plataforma está creada para que los desarrolladores suban el código de sus aplicaciones y herramientas, y que como usuario no sólo puedas descargarte la aplicación, sino también entrar a su perfil para leer sobre ella o colaborar con su desarrollo.
+
+También tiene un sistema de seguimiento de problemas, para que otras personas puedan hacer mejoras, sugerencias y optimizaciones en los proyectos. Ofrece también una herramienta de revisión de código, de forma que no sólo se puede mirar el código fuente de una herramienta, sino que también se pueden dejar anotaciones para que su creador o tú mismo las podáis revisar. Se pueden crear discusiones también alrededor de estas anotaciones para mejorar y optimizar el código.
+
+En las siguientes clases, veremos algunas curiosidades a modo de retos para aprender algunos parámetros del comando ‘**git**‘.
+
+[There is a git repository at `ssh://bandit27-git@localhost/home/bandit27-git/repo` via the port `2220`. The password for the user `bandit27-git` is the same as for the user `bandit27`.
+
+Clone the repository and find the password for the next level.]
+
+[Hay un repositorio de git en ssh://bandit27-git-localhost/home/bandit27-git/repo a través del puerto 2220. La contraseña para el bandido de usuario27-git es la misma que para el bandido de usuario27. 
+Coloque el repositorio y encuentre la contraseña para el siguiente nivel. ]
+
+```
+mktemp -d 
+
+cd
+
+git clone ssh://bandit27-git@localhost/home/bandit27-git/repo`
+
+```
+
+facil
+
+------
+
+# Operando con proyectos de Github [2-5]
+## bandit 28 -> 29
+
+[There is a git repository at `ssh://bandit28-git@localhost/home/bandit28-git/repo` via the port `2220`. The password for the user `bandit28-git` is the same as for the user `bandit28`.
+
+Clone the repository and find the password for the next level.]
+
+
+git log [fix info leak] arrego de una fuga de informacion
+
+git show 
+
+Con el comando ‘**git log**‘ podremos siempre listar todos los Commits existentes en un proyecto. Lo que obtendremos es un listado de identificadores los cuales podremos aprovechar para, por ejemplo, mediante el uso del comando ‘**git show**‘ seguido del identificador del Commit cuyas propiedades queramos visualizar, ser capaces de ver todos los cambios que se hayan aplicado para un punto dado del proyecto.
+
+En caso de querer volver a un estado del proyecto pasado, podremos hacer uso del comando ‘**git checkout**‘ seguido del identificador del Commit deseado, pudiendo así volver a ese punto de la historia con todos los archivos existentes para ese entonces restaurados.
+
+-------------------
+
+# Operando con proyectos de Github [3-5]
+
+## bandit 29 -> 30
+
+#### para ver las ramas con cli = git branch -a
+#### para cambiar de rama git checkout dev | o puede ser "master" o lo que sea
+
+El comando ‘**git branch**‘ nos permite crear, enumerar y eliminar ramas, así como cambiar sus nombres. Es importante recalcar que no nos permite cambiar entre ramas o volver a unir un historial bifurcado. Por este motivo, ‘**git branch**‘ está estrechamente integrado con los comandos ‘**git checkout**‘ y ‘**git merge**‘.
+
+-----------------------------
+
+# Operando con proyectos de Github [4-5]
+## bandit 30 -> 31
+
+[There is a git repository at `ssh://bandit30-git@localhost/home/bandit30-git/repo` via the port `2220`. The password for the user `bandit30-git` is the same as for the user `bandit30`.
+
+Clone the repository and find the password for the next level.]
+
+
+En Git, una etiqueta o **tag** sirve básicamente como una rama firmada que no permuta, es decir, siempre se mantiene inalterable. Sencillamente es una cadena arbitraria que apunta a un Commit específico. Puede decirse que un tag es un nombre que puedes usar para marcar un punto específico en la historia de un repositorio.
+
+
+git show secret
+
+---------------------------------
+
+
+
+# Operando con proyectos de Github [5-5]
+
+## bandit 31 ->32
+
+Los commits son la base principal del trabajo de Git, ya que es el comando más usado para guardar cualquier cambio en esta herramienta. Si te preguntas qué es un **commit**, te puedes hacer una idea al entenderlo **como una captura de pantalla del trabajo que haces cada segundo en Git**, creando en consecuencia una versión del proyecto en el repositorio local.
+
+```
+git add -f key.txt
+git commit -m "creamos un nuevo archivo" (algo descriptivo)
+git -u push origin master 
+```
+
+
+------------------------------
+
+# Argumentos posicionales en Bash
+## bandit 32 -> 33
+
+En Bash se pueden usar argumentos desde la línea de comandos, los cuales son enviados a los scripts como variables. Estos quedarían representados de la siguiente forma:
+
+**[$0]**: Representa el nombre del script que se invocó desde la terminal.
+
+**[$1]**: Es el primer argumento desde la línea de comandos.
+
+**[$2]**: Es el segundo argumento desde la línea de comandos y así sucesivamente.
+
+**[$#]**: Contiene el número de argumentos que son recibidos desde la línea de comandos.
+
+**[$*]**: Contiene todos los argumentos que son recibidos desde la línea de comandos, guardados todos en la misma variable.
+
+
+
+
