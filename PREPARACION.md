@@ -23,7 +23,7 @@ Redes de clase A = 10.0.0.0 255.0.0.0 = /8
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # NETCAT
-
+# Uso de Netcat para entablar Reverse Shell
 search web “revshells.com”
 
 ![file:///tmp/.79UXO2/1.png](file:///tmp/.79UXO2/1.png)
