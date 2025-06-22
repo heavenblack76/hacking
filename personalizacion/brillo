@@ -1,0 +1,2 @@
+el brillo lo podes moficar yendo a la ruta donde se aloja el archivo /sys/class/backlight/acpi_video0/brightness
+   2   │ luego hay que editar el archivo. Tienen un rango de 1 - 7, con modificar el de brightness pero con sudo
