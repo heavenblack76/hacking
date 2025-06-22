@@ -1,0 +1,42 @@
+Para cambiar la configuración del touchpad en Linux y habilitar el clic al tocar y el desplazamiento con un solo dedo a través de la línea de comandos, puedes usar `xinput`, que es una herramienta para configurar dispositivos de entrada.
+
+Aquí tienes los pasos a seguir:
+
+1. **Identificar el dispositivo del touchpad**:
+   Abre una terminal y ejecuta el siguiente comando para listar los dispositivos de entrada:
+
+   ```bash
+   xinput list
+   ```
+
+   Busca el nombre de tu touchpad en la lista. Anota el ID del dispositivo, que es un número que aparece al lado del nombre.
+
+2. **Ver las propiedades del touchpad**:
+   Una vez que tengas el ID del touchpad, ejecuta el siguiente comando para ver sus propiedades:
+
+   ```bash
+   xinput list-props <ID_DEL_TOUCHPAD>
+   ```
+
+   Reemplaza `<ID_DEL_TOUCHPAD>` con el número que anotaste. Busca propiedades relacionadas con "Tapping" y "Scrolling".
+
+3. **Habilitar el clic al tocar**:
+   Para habilitar el clic al tocar, puedes usar el siguiente comando:
+
+   ```bash
+   xinput set-prop <ID_DEL_TOUCHPAD> "libinput Tapping Enabled" 1
+   ```
+
+4. **Habilitar el desplazamiento con un solo dedo**:
+   Para habilitar el desplazamiento con un solo dedo, usa el siguiente comando:
+
+   ```bash
+   xinput set-prop <ID_DEL_TOUCHPAD> "libinput Scroll Method Enabled" 0 1 0
+   ```
+
+   Aquí, el primer número (0) desactiva el desplazamiento por borde, el segundo número (1) habilita el desplazamiento con un dedo, y el tercer número (0) desactiva el desplazamiento con dos dedos.
+
+5. **Verificar los cambios**:
+   Puedes volver a ejecutar el comando `xinput list-props <ID_DEL_TOUCHPAD>` para verificar que las propiedades se hayan cambiado correctamente.
+
+Estos cambios se aplicarán solo durante la sesión actual. Si deseas que se apliquen automáticamente al iniciar sesión, puedes agregar los comandos a tu archivo de inicio de sesión, como `~/.xprofile` o `~/.bashrc`, dependiendo de tu entorno de escritorio.
