@@ -1,0 +1,43 @@
+Para configurar `feh` de manera que muestre una imagen aleatoria de un conjunto de imágenes cada vez que inicias sesión en `bspwm`, puedes seguir estos pasos:
+
+### 1. Organiza tus imágenes
+
+Crea un directorio donde almacenarás todas las imágenes que deseas usar como fondo de escritorio. Por ejemplo:
+
+```bash
+mkdir -p ~/Imágenes/Fondos
+```
+
+Luego, copia todas tus imágenes en este directorio.
+
+### 2. Configura `feh` para usar imágenes aleatorias
+
+Puedes usar el siguiente comando para que `feh` seleccione una imagen aleatoria de tu directorio de fondos:
+
+```bash
+feh --bg-scale --randomize ~/Imágenes/Fondos/*
+```
+
+### 3. Agrega el comando a tu archivo de configuración de `bspwm`
+
+Abre tu archivo de configuración de `bspwm`, que generalmente se encuentra en `~/.config/bspwm/bspwmrc`, y agrega la línea con el comando de `feh`:
+
+```bash
+feh --bg-scale --randomize ~/Imágenes/Fondos/* &
+```
+
+Asegúrate de que el comando esté precedido por un `&` para que se ejecute en segundo plano.
+
+### 4. Reinicia `bspwm`
+
+Después de hacer estos cambios, reinicia `bspwm` para que el nuevo fondo se aplique. Puedes hacerlo con el siguiente comando:
+
+```bash
+bspc wm -r
+```
+
+### 5. Verifica el resultado
+
+Al iniciar sesión en tu entorno de escritorio, `feh` debería seleccionar aleatoriamente una imagen de tu directorio de fondos y establecerla como fondo de escritorio.
+
+Con estos pasos, cada vez que inicies sesión, tendrás un fondo diferente de las imágenes que hayas seleccionado.
