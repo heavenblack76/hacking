@@ -1,0 +1,54 @@
+Para crear un USB booteable con BlackArch Linux desde Ubuntu usando solo la terminal, sigue estos pasos:
+
+    Descarga la ISO de BlackArch:
+        Visita el sitio oficial de BlackArch (https://blackarch.org/downloads.html) y copia el enlace de la ISO deseada (por ejemplo, la versión completa o slim).
+        Descarga la ISO usando wget:
+        bash
+
+        wget https://blackarch.org/iso/blackarch-linux-<version>-x86_64.iso
+
+        Reemplaza <version> con la versión actual (por ejemplo, 2023.04.01).
+    Inserta el USB y encuentra su dispositivo:
+        Conecta el USB y verifica su identificador con:
+        bash
+
+        lsblk
+
+        Busca el dispositivo correspondiente al USB (por ejemplo, /dev/sdX, donde X es una letra como b o c). Asegúrate de identificar correctamente el USB para no sobrescribir otro disco.
+    Desmonta el USB (si está montado):
+        Si el USB aparece montado en lsblk, desmóntalo:
+        bash
+
+        sudo umount /dev/sdX1
+
+        Reemplaza sdX1 con la partición específica si es necesario (puede ser sdX2, etc.).
+    Escribe la ISO en el USB con dd:
+        Usa el comando dd para copiar la ISO al USB. Asegúrate de usar el dispositivo raíz (/dev/sdX, no /dev/sdX1):
+        bash
+
+        sudo dd bs=4M if=blackarch-linux-<version>-x86_64.iso of=/dev/sdX status=progress oflag=sync
+
+            bs=4M: Tamaño de bloque para mayor velocidad.
+            if=: Archivo de entrada (la ISO descargada).
+            of=: Dispositivo de salida (el USB).
+            status=progress: Muestra el progreso.
+            oflag=sync: Asegura que los datos se escriban completamente.
+            Nota: Este comando sobrescribirá todo en el USB, así que verifica que no contenga datos importantes.
+    Espera a que termine:
+        El proceso puede tomar varios minutos dependiendo del tamaño de la ISO y la velocidad del USB. Cuando termine, no verás más salida en la terminal.
+    Expulsa el USB:
+        Una vez completado, expulsa el USB de forma segura:
+        bash
+
+        sudo eject /dev/sdX
+
+    Verifica (opcional):
+        Puedes volver a insertar el USB y usar lsblk para confirmar que tiene una partición con la ISO de BlackArch.
+
+Notas importantes:
+
+    Permisos: Necesitas permisos de superusuario (sudo) para los comandos que acceden al USB.
+    Cuidado con dd: Un error al especificar el dispositivo de salida (of=) puede destruir datos en otro disco. Siempre verifica con lsblk.
+    Configuración del BIOS/UEFI: Para usar el USB booteable, asegúrate de configurar tu BIOS/UEFI para arrancar desde el USB y, si es necesario, habilita el modo Legacy o desactiva Secure Boot, ya que BlackArch puede requerirlo.
+
+El USB ahora debería ser booteable con BlackArch Linux. Arranca desde él en tu máquina objetivo y sigue las instrucciones de instalación o uso en vivo de BlackArch.
